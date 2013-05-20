@@ -74,7 +74,7 @@ on early-boot
     # exec /system/bin/sh /init.qcom.early_boot.sh ${ro.board.platform}
 # sys_sw.sa: following 2 setprop commands should be run here.
     setprop qcom.audio.init complete
-    setprop qcom.thermal thermal-engine
+#   setprop qcom.thermal thermal-engine
     exec /system/bin/sh /init.qcom.syspart_fixup.sh ${ro.board.platform} ${ro.serialno}
 
 on boot

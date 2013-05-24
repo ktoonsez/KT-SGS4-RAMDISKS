@@ -427,7 +427,7 @@
 /system/bin/ssr_diag	u:object_r:ssr_diag_exec:s0
 #/system/bin/thermal-engine	u:object_r:thermald_exec:s0
 /system/bin/time_daemon	u:object_r:time_daemon_exec:s0
-#line 1 "vendor/samsung/common/sepolicy/qcom_common/jfltespr/file_contexts"
+#line 1 "vendor/samsung/common/sepolicy/qcom_common/jfltevzw/file_contexts"
 /dev/block/mmcblk0p1    u:object_r:apnhlosblk_device:s0
 /dev/block/mmcblk0p2    u:object_r:mdmblk_device:s0
 /dev/block/mmcblk0p9	u:object_r:padblk_device:s0
@@ -447,3 +447,12 @@
 /dev/block/mmcblk0p26   u:object_r:persdatablk_device:s0
 /dev/block/mmcblk0p29   u:object_r:userdatablk_device:s0
 
+#line 1 "vendor/samsung/common/sepolicy/vmware/file_contexts"
+# VMware daemon
+/system/bin/mvpd	u:object_r:vmwared_exec:s0
+
+# Vmware device
+/dev/mvpkm		u:object_r:vmware_device:s0
+
+# VMWare sysfs
+/sys/hypervisor(/.*)	u:object_r:sysfs_vmware_writable:s0

@@ -107,7 +107,7 @@ loglevel 3
 
     # Directory for staging bindmounts
     mkdir /mnt/secure/staging 0700 root root
-    resturecon -R /mnt/secure/staging
+    restorecon -R /mnt/secure/staging
 
     # Directory-target for where the secure container
     # imagefile directory will be bind-mounted
@@ -187,9 +187,6 @@ on post-fs
     # once everything is setup, no need to modify /
     mount rootfs rootfs / ro remount
 
-    # After mount, attempt to reload policy
-    # setprop selinux.reload_policy 1
-
     # mount shared so changes propagate into child namespaces
     mount rootfs rootfs / shared rec
     mount tmpfs tmpfs /mnt/secure private rec
@@ -255,7 +252,7 @@ on post-fs-data
 
     # create basic filesystem structure
     mkdir /data/misc 01771 system misc
-    mkdir /data/misc/audit 02755 audit system
+    mkdir /data/misc/audit 02775 audit system
     mkdir /data/misc/adb 02750 system shell
     mkdir /data/misc/bluedroid 0770 bluetooth net_bt_stack
     mkdir /data/misc/bluetooth 0770 system system
@@ -336,10 +333,6 @@ on post-fs-data
     mkdir /data/backup 0700 system system
     restorecon /data/backup
 
-    # obb dir for restorecon
-    mkdir /data/media/obb 0775 media_rw media_rw
-    restorecon /data/media/obb
-
 #[ SEC_MM_DRM
 
     # [ save OMA DB, when upgrading from GB to ICS
@@ -392,7 +385,8 @@ on post-fs-data
     restorecon -R /efs
 
     # Separate location for storing security policy files on data
-    mkdir /data/security 0700 system system
+    mkdir /data/security 0711 system system
+    mkdir /data/security/spota 0711 system system
 
     # If there is no fs-post-data action in the init.<device>.rc file, you
     # must uncomment this line, otherwise encrypted filesystems
@@ -403,6 +397,7 @@ on post-fs-data
 # Permissions for Camera
     chown system radio /sys/class/camera/rear/rear_camfw
     chown system radio /sys/class/camera/rear/rear_camtype
+    chown system media_rw /sys/class/camera/rear/rear_checkApp
     chown system radio /sys/class/camera/flash/rear_flash
     chown system radio /sys/class/camera/front/front_camfw
     chown system radio /sys/class/camera/front/front_camtype
@@ -497,8 +492,13 @@ on boot
     chown system system /sys/class/lcd/panel/window_type
     chown radio system /sys/class/lcd/panel/power_reduce
     chown system media_rw /sys/class/mdnie/mdnie/accessibility 
+    chown system system /sys/class/mdnie/mdnie/cabc
     chown radio system /sys/class/lcd/panel/siop_enable
     chown radio system /sys/class/lcd/panel/temperature
+
+# hard reset control sysfs node
+    chown radio system /sys/power/hard_reset_ctl
+    chmod 664 /sys/power/hard_reset_ctl
 
 # Adjust YUV to RGB Conversion
 	chown system media_rw /sys/class/graphics/fb0/csc_cfg
@@ -645,6 +645,7 @@ on boot
     chown system radio /sys/class/sensors/temphumidity_sensor/vendor
     chown system radio /sys/class/sensors/temphumidity_sensor/name
     chown system radio /sys/class/sensors/temphumidity_sensor/engine_ver
+    chown system radio /sys/class/sensors/temphumidity_sensor/engine_ver2
     chown system radio /sys/class/sensors/temphumidity_sensor/cp_thm
     chown system radio /sys/class/sensors/temphumidity_sensor/send_accuracy
 # SensorHub
@@ -770,8 +771,6 @@ service ueventd /sbin/ueventd
     seclabel u:r:ueventd:s0
 
 on property:selinux.reload_policy=1
-    restart ueventd
-    restart installd
     chown system system /sys/fs/selinux/enforce
     chown -R system system /sys/fs/selinux/booleans
     chown system system /sys/fs/selinux/commit_pending_bools
@@ -911,7 +910,7 @@ service secril-daemon /system/bin/sec-ril
     group radio cache inet misc audio sdcard_rw diag log 
 
 service at_distributor /system/bin/at_distributor
-    class main
+    class late_start
     user root
     group radio log
 	
@@ -1001,7 +1000,12 @@ service containersetup /system/bin/containersetup
 service ipruleset /system/bin/ipruleset
     class main
     group vpn net_admin inet net_raw
-	disabled
+    oneshot
+
+service createsystemfile /system/bin/createsystemfile
+    class main
+    group system
+    disabled
     oneshot
 	
 service mtpd /system/bin/mtpd
@@ -1076,6 +1080,7 @@ on property:ro.dumpstate.dmesg=1
 on property:init.svc.bootanim=stopped
     restorecon /data/media
     restorecon /data/media/obb
+    setprop selinux.reload_policy 1
     start auditd
 
 service post-init /sbin/ext/post-init.sh

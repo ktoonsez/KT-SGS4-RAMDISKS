@@ -276,7 +276,7 @@ service secure_storage /system/bin/secure_storage_daemon
     group system
     disabled
 
-on property:init.svc.prepare-ssdaemon=stopped
+on property:ro.securestorage.ready=true
     start secure_storage
 
 # for LogMeIn 

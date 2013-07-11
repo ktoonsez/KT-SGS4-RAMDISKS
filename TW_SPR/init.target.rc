@@ -263,22 +263,6 @@ service time_daemon /system/bin/time_daemon
    user root
    group root
 
-# Secure Storage startup
-service prepare-ssdaemon /system/bin/sh /system/bin/ss-presetup.sh
-    class core
-    user root
-    group root
-    oneshot
-
-service secure_storage /system/bin/secure_storage_daemon
-    class core
-    user system
-    group system
-    disabled
-
-on property:init.svc.prepare-ssdaemon=stopped
-    start secure_storage
-
 # for LogMeIn 
 service RescueStarter /system/bin/RescueStarter 
     class core 

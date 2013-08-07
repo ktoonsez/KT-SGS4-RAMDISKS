@@ -30,6 +30,14 @@ exec >>/data/.ktoonsez/post-init.log 2>&1
 
 echo "Running Post-Init Script"
 
+#Check for forcing Samsung MTP
+if [ -f /data/.ktoonsez/force_samsung_mtp ];
+then
+  # BackUp old post-init log
+  echo "Forcing Samsung MTP"
+  echo 1 > /sys/devices/system/cpu/cpufreq/ktoonsez/enable_google_mtp;
+fi
+
 ## Testing: Check for ExFat SD Card
 #
 SDTYPE1=`blkid /dev/block/mmcblk1  | awk '{ print $3 }' | sed -e 's|TYPE=||g' -e 's|\"||g'`

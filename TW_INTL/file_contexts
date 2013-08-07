@@ -428,7 +428,7 @@
 /system/bin/ssr_diag	u:object_r:ssr_diag_exec:s0
 #/system/bin/thermal-engine	u:object_r:thermald_exec:s0
 /system/bin/time_daemon	u:object_r:time_daemon_exec:s0
-#line 1 "vendor/samsung/common/sepolicy/qcom_common/jfltetmo/file_contexts"
+#line 1 "vendor/samsung/common/sepolicy/qcom_common/jflte/file_contexts"
 /dev/block/mmcblk0p1    u:object_r:apnhlosblk_device:s0
 /dev/block/mmcblk0p2    u:object_r:mdmblk_device:s0
 /dev/block/mmcblk0p9	u:object_r:padblk_device:s0

@@ -419,9 +419,17 @@ on post-fs-data
     # Vibetonz
     chmod 0660 /dev/tspdrv
     chown root shell /dev/tspdrv
-    chmod 0660 /sys/vibrator/pwm_val
-    chown system system /sys/vibrator/pwm_val
-
+	chown system system /sys/class/timed_output/vibrator/pwm_value
+	chmod 0660 /sys/class/timed_output/vibrator/pwm_value
+    chown system system /sys/class/timed_output/vibrator/pwm_max
+	chmod 0660 /sys/class/timed_output/vibrator/pwm_max
+	chown system system /sys/class/timed_output/vibrator/pwm_min
+	chmod 0660 /sys/class/timed_output/vibrator/pwm_min
+	chown system system /sys/class/timed_output/vibrator/pwm_default
+	chmod 0660 /sys/class/timed_output/vibrator/pwm_default
+	chown system system /sys/class/timed_output/vibrator/pwm_threshold
+	chmod 0660 /sys/class/timed_output/vibrator/pwm_threshold
+    
     # Panel color temperature
     chmod 0660 /sys/class/lcd/panel/panel_colors
     chown system system /sys/class/lcd/panel/panel_colors
@@ -537,10 +545,10 @@ service scranton_RD /system/bin/scranton_RD
 on property:sys.qseecomd.enable=true
     start scranton_RD
 
-# 2011-12-08/systemsw/kyo/ bugreport is triggered by holding down volume down, volume up and power
-service bugreport /system/bin/bugmailer.sh -v
-	class main
-	disabled
-	oneshot
-	keycodes 114 115 116
-
+# bugreport is triggered by holding down volume down, volume up and power
+service bugreport /system/bin/dumpstate -d -p -B \
+        -o /data/data/com.android.shell/files/bugreports/bugreport
+    class main
+    disabled
+    oneshot
+    keycodes 114 115 116

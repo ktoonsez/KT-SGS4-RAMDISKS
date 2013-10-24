@@ -2,16 +2,17 @@ on early-init
     start ueventd
 
 on init
+    symlink /system/vendor /vendor
 
 sysclktz 0
 
 loglevel 3
 
 on fs_selinux
-    mount_all fstab.jgedlte
+    mount_all fstab.qcom
 
 on fs
-    mount_all fstab.jgedlte
+    mount_all fstab.qcom
 
 # setup the global environment
     export PATH /sbin:/vendor/bin:/system/sbin:/system/bin:/system/xbin

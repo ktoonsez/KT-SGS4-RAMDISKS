@@ -25,10 +25,18 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+on early-init
+    mkdir /vendor 0771 system system
+
+on init
+    symlink /system/vendor/etc /vendor/etc
+    symlink /system/vendor/firmware /vendor/firmware
+    symlink /system/vendor/lib /vendor/lib
+    symlink /system/vendor/pittpatt /vendor/pittpatt
+
 on boot
 
 # permissions for bluetooth.
-    mkdir /efs/bluetooth 0775 radio system
     setprop ro.bt.bdaddr_path "/efs/bluetooth/bt_addr"
     chown bluetooth net_bt_stack ro.bt.bdaddr_path
     chown bluetooth net_bt_stack /dev/ttyHS0
@@ -51,21 +59,20 @@ on boot
 	chown radio system /sys/class/sec/switch/uart_sel
 	chown radio system /sys/class/sec/switch/apo_factory
 
-
 # TVout
 service TvoutService_C /system/bin/bintvoutservice
     class main
     user system
     group system
+
 # MM Property
 #on property:sys.qseecomd.enable=true
 #    exec /system/bin/scranton_RD
 
 # Runtime Compcache
-service rtccd /system/bin/rtccd2 -a 500M
+service rtccd /system/bin/rtccd -a 400M
     class core
     user root
-    oneshot
 
 # bluetooth dhcp config
 service dhcpcd_bt-pan /system/bin/dhcpcd -ABKL
@@ -77,3 +84,41 @@ service iprenew_bt-pan /system/bin/dhcpcd -n
     class late_start
     disabled
     oneshot
+
+	# Add Carrier Partition for SPR only
+on init
+    mkdir /carrier 0771 system system
+
+on fs_selinux
+    wait /dev/block/platform/msm_sdcc.1/by-name/carrier
+    mount ext4 /dev/block/platform/msm_sdcc.1/by-name/carrier /carrier nosuid nodev barrier=1
+    chown system system /carrier
+    chmod 0771 /carrier
+    symlink /carrier/itson/app /vendor/app
+    # We restorecon /carrier in case the carrier partition has been reset.
+    restorecon -R /carrier
+
+# AuthenTec VPNClient
+service vpnclientpm /system/bin/vpnclientpm -u 1000 \
+	-O /data/data/com.ipsec.vpnclient/vpnclientpm.txt
+    group system net_admin net_raw
+    disabled
+
+service secstarter /system/bin/secstarter
+    class main
+    user system
+    group system
+
+on property:vpnclientpm.enable=1
+    start vpnclientpm
+
+on property:vpnclientpm.enable=0
+    stop vpnclientpm
+
+on post-fs-data
+    # ItsOn property
+    start itsonbs
+
+service itsonbs /system/vendor/itson/itson-bootstrapper.sh
+    oneshot
+    critical

@@ -30,14 +30,8 @@ on early-init
     mkdir /firmware 0771 system system
     mkdir /firmware-mdm 0771 system system
     symlink /data/tombstones /tombstones
-    mkdir efs 0771 system system
-
-    mount debugfs /sys/kernel/debug /sys/kernel/debug
-
-service ril-qmi /system/bin/sh /init.qcom.ril.sh
-    class main
-    user root
-    oneshot
+    mkdir /efs 0771 system radio
+    mount debugfs debugfs /sys/kernel/debug
 
 on fs
     mount_all fstab.qcom
@@ -45,6 +39,8 @@ on fs
 
     chown system radio /efs
     chmod 0771 /efs
+    restorecon -R /efs
+
     exec /system/bin/sh /init.qcom.syspart_fixup.sh ${ro.board.platform} ${ro.serialno}
 
     chown system radio /dev/block/platform/msm_sdcc.1/by-name
@@ -58,6 +54,7 @@ on boot
 
 on post-fs-data
     mkdir /data/tombstones 0771 system system
+    symlink /data/tombstones /tombstones
     mkdir /tombstones/modem 0771 system system
     mkdir /tombstones/lpass 0771 system system
     mkdir /tombstones/wcnss 0771 system system
@@ -365,12 +362,6 @@ on post-fs-data
     chmod 0660 /sys/class/lcd/panel/panel_colors
     chown system system /sys/class/lcd/panel/panel_colors
 
-service prepare_param /system/bin/prepare_param.sh /dev/block/platform/msm_sdcc.1/by-name/param
-    class main
-    user root
-    group root
-    oneshot
-
 #start camera server as daemon
 service qcamerasvr /system/bin/mm-qcamera-daemon
     class late_start
@@ -410,17 +401,15 @@ service mdm_helper /system/bin/mdm_helper
     onrestart setprop ro.service.mdm_helper_restarted "true"
     disabled
 
+service qrngd /system/bin/qrngd -f
+    class main
+    user root
+    group root
+
 service qseecomd /system/bin/qseecomd
    class late_start
    user system
    group system
-
-service efsrestorecon /system/bin/restorecon -R /efs
-    class late_start
-    user root
-    group root
-    disabled
-    oneshot
 
 # Start kickstart if mdm is detected
 on property:ro.baseband=mdm
@@ -432,57 +421,10 @@ on property:ro.baseband=sglte
     mkdir /data/misc/mdmhelperdata 0700
     start mdm_helper
 
-service usf_tester /system/bin/usf_tester
-    user system
-    group system inet
-    disabled
-
-service usf_epos /system/bin/usf_epos
-    user system
-    group system inet
-    disabled
-
-service usf_gesture /system/bin/usf_gesture
-    user system
-    group system inet
-    disabled
-
-service usf_p2p /system/bin/usf_p2p
-    user system
-    group system inet
-    disabled
-
-service usf_hovering /system/bin/usf_hovering
-    user system
-    group system inet
-    disabled
-
-service usf-post-boot /system/bin/sh /system/etc/usf_post_boot.sh
-    class late_start
-    user root
-    disabled
-    oneshot
-
-on property:init.svc.bootanim=stopped
-    start usf-post-boot
-    start run-mobicore
-    start efsrestorecon
-
 service time_daemon /system/bin/time_daemon
    class late_start
    user root
    group root
-
-# service for TZPR provisioning version check app
-service scranton_RD /system/bin/scranton_RD
-    class main
-    user root
-    disabled
-    oneshot
-
-# start for TZPR provisioning version check app
-on property:sys.qseecomd.enable=true
-    start scranton_RD
 
 # bugreport is triggered by holding down volume down, volume up and power
 service bugreport /system/bin/dumpstate -d -p -B \

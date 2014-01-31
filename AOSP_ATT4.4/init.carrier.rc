@@ -25,19 +25,6 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-on init
-
-    # For Absolute Persistence Partition
-    mkdir /persdata 0755 system system
-    mkdir /persdata/absolute 0750 system system
-
-    wait /dev/block/platform/msm_sdcc.1/by-name/persdata
-    mount ext4 /dev/block/platform/msm_sdcc.1/by-name/persdata  /persdata/absolute nosuid nodev barrier=1
-    chown system system /persdata
-    chmod 0755 /persdata
-    chown system system /persdata/absolute
-    chmod 0750 /persdata/absolute
-
 on boot
 
 # permissions for bluetooth.
@@ -54,19 +41,3 @@ on boot
 	chown radio system /sys/class/sec/switch/usb_state
 	chown radio system /sys/class/sec/switch/uart_sel
 	chown radio system /sys/class/sec/switch/apo_factory
-
-# TVout
-service TvoutService_C /system/bin/bintvoutservice
-    class main
-    user system
-    group system
-
-# MM Property
-#on property:sys.qseecomd.enable=true
-#    exec /system/bin/scranton_RD
-
-# Runtime Compcache
-service rtccinit /system/bin/rtcc_init -a 400M
-    class core
-    user root
-    oneshot

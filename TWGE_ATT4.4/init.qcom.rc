@@ -51,12 +51,15 @@ on init
     export EMULATED_STORAGE_TARGET /storage/emulated
     # This is no longer supported from KK release.
     #export BOOTCLASSPATH ${BOOTCLASSPATH}:/system/framework/qcom.fmradio.jar
+    # For moving apps to SD
+    export EXTERNAL_SD /storage/extSdCard
 
     # Support legacy paths
     symlink /storage/emulated/legacy /sdcard
     symlink /storage/emulated/legacy /mnt/sdcard
     symlink /storage/emulated/legacy /storage/sdcard0
     symlink /mnt/shell/emulated/0 /storage/emulated/legacy
+    symlink /storage/extSdCard /external_sd
 
     export SECONDARY_STORAGE /storage/extSdCard
     # map "real" external storages paths also in same way. backwards compatibility.

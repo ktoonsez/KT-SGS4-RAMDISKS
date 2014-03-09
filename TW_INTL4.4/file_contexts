@@ -525,7 +525,7 @@
 #/system/bin/thermald u:object_r:thermald_exec:s0
 /system/bin/time_daemon	u:object_r:time_daemon_exec:s0
 /system/bin/wiperiface		u:object_r:wiperiface_exec:s0
-#line 1 "vendor/samsung/common/sepolicy/qcom_common/APQ8064/jflte_common/jflte_spr/file_contexts"
+#line 1 "vendor/samsung/common/sepolicy/qcom_common/APQ8064/jflte_common/file_contexts"
 /dev/block/mmcblk0p1    u:object_r:apnhlosblk_device:s0
 /dev/block/mmcblk0p2    u:object_r:mdmblk_device:s0
 /dev/block/mmcblk0p9	u:object_r:padblk_device:s0
@@ -547,9 +547,3 @@
 /dev/block/mmcblk0p28   u:object_r:carrierblk_device:s0
 /dev/block/mmcblk0p29   u:object_r:userdatablk_device:s0
 
-############################# 
-# ItsOn file
-#
-/system/vendor/itson(/.*)?  u:object_r:sprintitson_file:s0
-/vendor/app(/.*)?  u:object_r:sprintitson_file:s0
-/carrier/itson(/.*)?  u:object_r:sprintitson_file:s0
